@@ -1,4 +1,7 @@
-"use strict";
+/**
+ * Created by zlin on 2/11/15.
+ */
+
 
 $(window).on('hashchange', function () {
 
@@ -11,6 +14,7 @@ $(window).on('hashchange', function () {
 
     $('.page').removeClass('show');
 
+    $('#worldclock').addClass('show');
 
     if (hash === '#stopwatch') {
         $('#stopwatch').addClass('show');
@@ -29,12 +33,42 @@ $(window).on('hashchange', function () {
 
 });
 
-function hidePageWithId(id) {
 
-    //$(id).hide();
-    $(id + '-link').removeClass('selected');
+function handlePage(){
+
+
+    var hash = window.location.hash;
+
+    hidePageWithId('#worldclock');
+    hidePageWithId('#timer');
+    hidePageWithId('#stopwatch');
+
+
+    $('.page').removeClass('show');
+
+    $('#worldclock').addClass('show');
+
+    if (hash === '#stopwatch') {
+        $('#stopwatch').addClass('show');
+        //make it red
+        $('#sw').addClass('selected');
+    }
+    if (hash === '#worldclock') {
+        $('#worldclock').addClass('show');
+        $('#wc').addClass('selected');
+    }
+    if (hash === '#timer') {
+        $('#timer').addClass('show');
+        $('#tm').addClass('selected');
+    }
+
 }
 
+function hidePageWithId(id) {
+
+
+    $(id + '-link').removeClass('selected');
+}
 
 function addPrefix(num) {
     if (num < 10) {
@@ -43,7 +77,127 @@ function addPrefix(num) {
     return num;
 }
 
-//----------------------------------Timer----------------------------------
+//-------------------------------World Clock------------------------------------
+
+
+var WorldClock = {
+
+
+    setWorldClock: function () {
+
+        $('.worldclock-list').empty();
+        var data = this.worldClockdata;
+        $.each(data, function (index, value) {
+            var currTime = new Date();
+            var n = currTime.getTimezoneOffset();
+            var ahead = (value.timezoneOffset + n) / 60;
+            var gap = currTime.getHours() + ahead;
+            currTime.setHours(gap);
+
+
+            var today_tmr = '';
+            var time_str = '';
+            var ahead_time = '';
+
+            if (gap > 24) {
+                today_tmr = 'Tomorrow';
+            } else {
+                today_tmr = 'Today';
+            }
+
+            if (ahead !== 0) {
+                ahead_time = ', ';
+                if (ahead > 0) {
+                    ahead_time += ahead + ' hours ahead';
+                } else {
+                    ahead_time += ahead + ' hours late';
+                }
+
+            }
+
+            //change to 12 hour-format
+            var hour = currTime.getHours();
+            var min = currTime.getMinutes();
+            var second = currTime.getSeconds();
+            if (hour >= 12) {
+                time_str = 'PM';
+            } else {
+                time_str = 'AM';
+            }
+
+            hour = hour % 12;
+            if (hour === 0) {
+                hour += 12;
+            }
+
+            time_str = hour + ':' + addPrefix(min) + ':' + addPrefix(second) + ' ' + time_str;
+
+            $('.worldclock-list').append('<li><p class="city">'
+            + value.cityName
+            + '</p><p class="time-details"><strong>'
+            + today_tmr + '</strong>'
+            + ahead_time + '</p><p class="time">'
+            + time_str + '</p></li>');
+
+        });
+
+
+    },
+
+    updateTime: function () {
+
+
+        setInterval(function () {
+
+            WorldClock.setWorldClock();
+        }, 500);
+
+    },
+
+    init: function () {
+
+        this.worldClockdata = [
+            {
+                cityName: 'Cupertino',
+                timezoneOffset: -480
+            },
+            {
+                cityName: 'Stockholm',
+                timezoneOffset: 60
+            },
+            {
+                cityName: 'São Paulo',
+                timezoneOffset: -180
+            },
+            {
+                cityName: 'Tokyo',
+                timezoneOffset: 540
+            },
+            {
+                cityName: 'New York',
+                timezoneOffset: -300
+            },
+            {
+                cityName: 'Bucharest',
+                timezoneOffset: 120
+            },
+            {
+                cityName: 'Beijing',
+                timezoneOffset: 480
+            }
+
+
+        ];
+
+        this.setWorldClock();
+        this.updateTime();
+
+    }
+
+};
+
+//--------------------Timer----------------------------
+
 
 
 var _sec = 59;
@@ -109,7 +263,7 @@ $('#timer .button-start.left-button').click(function () {
         }
     } else {
         //cancel the clock
-        clearInterval(timer);//?
+        clearInterval(timer);
         $('.inputs').css('display', 'block');
         $('#timer .counter').css('display', 'none');
         $(this).css({'color': 'green', 'border-color': 'green'});
@@ -138,145 +292,6 @@ $('#timer .button-pause.right-button').click(function () {
 var timer = setInterval(function () {
     //console.log('1s');
 }, 10000);
-
-
-//-------------------------------World Clock------------------------------------
-
-var WorldClock ={
-
-
-    worldClockdata:  [
-        {
-            cityName: 'Cupertino',
-            timezoneOffset: -480
-        },
-        {
-            cityName: 'Stockholm',
-            timezoneOffset: 60
-        },
-        {
-            cityName: 'São Paulo',
-            timezoneOffset: -180
-        },
-        {
-            cityName: 'Tokyo',
-            timezoneOffset: 540
-        },
-        {
-            cityName: 'New York',
-            timezoneOffset: -300
-        },
-        {
-            cityName: 'Bucharest',
-            timezoneOffset: 120
-        }
-    ],
-
-    setWorldClock: function(){
-
-    },
-
-    init: function(){
-
-    }
-
-};
-
-var worldClockData = [
-    {
-        cityName: 'Cupertino',
-        timezoneOffset: -480
-    },
-    {
-        cityName: 'Stockholm',
-        timezoneOffset: 60
-    },
-    {
-        cityName: 'São Paulo',
-        timezoneOffset: -180
-    },
-    {
-        cityName: 'Tokyo',
-        timezoneOffset: 540
-    },
-    {
-        cityName: 'New York',
-        timezoneOffset: -300
-    },
-    {
-        cityName: 'Bucharest',
-        timezoneOffset: 120
-    }
-];
-
-
-
-
-function setWorldClock() {
-    $('.worldclock-list').empty();
-    $.each(worldClockData, function (index, value) {
-        var currTime = new Date();
-        var n = currTime.getTimezoneOffset();
-        var ahead = (value.timezoneOffset + n) / 60;
-        var gap = currTime.getHours() + ahead;
-        currTime.setHours(gap);
-
-
-        var today_tmr = '';
-        var time_str = '';
-        var ahead_time = '';
-
-        if (gap > 24) {
-            today_tmr = 'Tomorrow';
-        } else {
-            today_tmr = 'Today';
-        }
-
-        if (ahead !== 0) {
-            ahead_time = ', ';
-            if (ahead > 0) {
-                ahead_time += ahead + ' hours ahead';
-            } else {
-                ahead_time += ahead + ' hours late';
-            }
-
-        }
-
-        //change to 12 hour-format
-        var hour = currTime.getHours();
-        var min = currTime.getMinutes();
-        var second = currTime.getSeconds();
-        if (hour >= 12) {
-            time_str = 'PM';
-        } else {
-            time_str = 'AM';
-        }
-
-        hour = hour % 12;
-        if (hour === 0) {
-            hour += 12;
-        }
-
-        time_str = hour + ':' + addPrefix(min)+ ':'+ addPrefix(second) + ' ' + time_str;
-
-        $('.worldclock-list').append('<li><p class="city">'
-        + value.cityName
-        + '</p><p class="time-details"><strong>'
-        + today_tmr + '</strong>'
-        + ahead_time + '</p><p class="time">'
-        + time_str + '</p></li>');
-
-    });
-
-}
-
-setInterval(function(){
-
-    setWorldClock();
-},1000);
-
-//run every 1 secs
-
 
 
 
@@ -395,9 +410,3 @@ var Stopwatch = {
 
     }
 };
-
-
-$(window).ready(function () {
-    Stopwatch.init();
-
-});

@@ -34,7 +34,7 @@
     </div>
 </div>
 
-<div id="worldclock" class="page show">
+<div id="worldclock" class="page">
     <header>
         <h1>World Clock</h1>
     </header>
@@ -77,6 +77,14 @@
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="clock.js"></script>
 
+<script>
+$(window).ready(function(){
+    handlePage();
+    WorldClock.init();
+    Stopwatch.init();
+})
+
+</script>
 
 </body>
 </html>
