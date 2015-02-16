@@ -48,11 +48,13 @@
     </header>
     <div class="timer-content">
         <div class="counter" style="display: none;">
-            <div class="timerclock">
-                <span id="hour"></span><span id="colon">:</span>
-                <span id="minutes"></span>:
-                <span id="second"></span>
-            </div>
+            <!--<div class="timerclock">-->
+            <!--<span id="hour"></span>-->
+            <!--<span id="minutes"></span>-->
+            <!--<span id="second"></span>-->
+            <!--</div>-->
+            <p class="total-time">00:00:00</p>
+
         </div>
         <div class="inputs">
             <input class="hours" type="number" name="hours" max="100" min="0" value="0"/>
@@ -75,14 +77,15 @@
 
 
 <script src="bower_components/jquery/dist/jquery.js"></script>
-<script src="clock.js"></script>
+<script src="clock_designP.js"></script>
 
 <script>
-$(window).ready(function(){
-    handlePage();
-    WorldClock.init();
-    Stopwatch.init();
-})
+    $(window).ready(function(){
+        handlePage();
+        WorldClock.init();
+        Stopwatch.init();
+        Timer.init();
+    })
 
 </script>
 

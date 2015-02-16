@@ -34,7 +34,7 @@ $(window).on('hashchange', function () {
 });
 
 
-function handlePage(){
+function handlePage() {
 
 
     var hash = window.location.hash;
@@ -46,7 +46,7 @@ function handlePage(){
 
     $('.page').removeClass('show');
 
-    $('#worldclock').addClass('show');
+    $('#timer').addClass('show');
 
     if (hash === '#stopwatch') {
         $('#stopwatch').addClass('show');
@@ -198,101 +198,129 @@ var WorldClock = {
 
 //--------------------Timer----------------------------
 
+var Timer = {
 
+    timeLeft: 0,
+    isRunning: false,
+    timeInterval: 500,
 
-var _sec = 59;
+    leftButton: function () {
 
-
-function countDownTimer() {
-    var _hour = parseInt($('#hour').text());
-    var _min = parseInt($('#minutes').text());
-
-    $('#second').text(addPrefix(_sec));
-    if (_hour > 0 || _min > 0 || _sec > 0) {
-        _sec--;
-        if (_sec < 0) {
-            _sec = 59;
-            _min--;
-            if (_min < 0) {
-                _min = 59;
-                _hour--;
-                $('#hour').text(addPrefix(_hour));
-            }
-            $('#minutes').text(addPrefix(_min));
-
-        }
-    } else {
-        clearInterval(timer);
-    }
-}
-
-function resume() {
-    timer = setInterval('countDownTimer()', 1000);
-}
-
-
-$('#timer .button-start.left-button').click(function () {
-    var state = $(this).text();
-    //console.error('second');
-    if (state === 'Start') {
-        //change time display mode from set to count
-        var hour = $('.hours').val();
-        var min = $('.minutes').val();
-        _sec = 59;
-
-        if (hour !== '0' || min !== '0') {
-            $('.inputs').css('display', 'none');
-            $('#timer  .counter').css('display', 'block');
-            //running state
-            //change the two buttons
-            $(this).css({'color': 'red', 'border-color': 'red'});
-            $(this).text('Cancel');
-            //enable the button
-            $('#colon').show();
-            $('.button-pause.right-button').removeClass('disabled');
-            if (hour !== '0') {
-                $('#hour').text(addPrefix(hour));
-            } else {
-                $('#hour').empty();
-                $('#colon').hide();
-            }
-            $('#minutes').text(addPrefix(min - 1));
-
-            $('#second').text(addPrefix(_sec));
-            timer = setInterval('countDownTimer()', 1000);
-        }
-    } else {
-        //cancel the clock
-        clearInterval(timer);
-        $('.inputs').css('display', 'block');
-        $('#timer .counter').css('display', 'none');
-        $(this).css({'color': 'green', 'border-color': 'green'});
-        $(this).text("Start");
-        $('#timer .button-pause.right-button').text('Pause');
-        $('#timer .button-pause.right-button').addClass('disabled');
-    }
-});
-
-
-$('#timer .button-pause.right-button').click(function () {
-    //resume state
-    var state = $(this).text();
-    var disabled = $(this).hasClass('disabled');
-    if (!disabled) {
-        if (state === 'Pause') {
-            clearInterval(timer);
-            $(this).text('Resume');
+        if (this.isRunning != true) {
+            this.start();
         } else {
-            $(this).text('Pause');
-            resume();
+            this.cancel();
         }
+
+    },
+
+    rightButton: function () {
+
+        if (this.isRunning != true) {
+            this.resume();
+        } else {
+            this.pause();
+        }
+
+    },
+
+    start: function () {
+
+        var timeDuration = $('#timer .inputs .hours').val() * 3600000 + $('#timer .inputs .minutes').val() * 60000;
+
+        //console.log(timeDuration);
+        if (timeDuration != 0) {
+            $('#timer .left-button').html('Cancel').removeClass('button-start').addClass('button-cancel');
+            $('#timer .right-button').removeClass('disabled').addClass('button-pause').html('Pause');
+
+            $('#timer .counter').show();
+            $('#timer .inputs').hide();
+            this.timeLeft = timeDuration;
+            this.isRunning = true;
+            this.calculateTime();
+
+        }
+
+
+    },
+
+    cancel: function () {
+        $('#timer .left-button').html('Start').removeClass('button-cancel').addClass('button-start');
+        $('#timer .right-button').html('Pause').removeClass('button-pause').addClass('disable');
+
+        $('#timer .counter').hide();
+        $('#timer .inputs').show();
+        this.isRunning = false;
+        this.timeLeft = 0;
+
+    },
+
+    pause: function () {
+        $('#timer .right-button').html('Resume');
+        this.isRunning = false;
+
+    },
+
+    resume: function () {
+        if (!$("#timer .right-button").hasClass('disabled')) {
+            $("#timer .right-button").html('Pause');
+            this.isRunning = true;
+            this.calculateTime();
+        }
+    },
+
+
+    calculateTime: function () {
+
+        if (this.isRunning) {
+
+            var tempTimeLeft = this.timeLeft,
+                newTimeLeft = tempTimeLeft - this.timeInterval,
+                self = this;
+
+
+            this.timeLeft = newTimeLeft;
+
+            if(newTimeLeft <=0){
+
+                this.cancel();
+                return;
+
+            }
+            var hours = parseInt(newTimeLeft / 3600000, 10),
+                minutes = parseInt(newTimeLeft / 60000, 10) - hours * 60,
+                seconds = parseInt(newTimeLeft / 1000, 10) - minutes * 60 - hours * 3600,
+                totalTime = '';
+
+            if (hours) {
+                totalTime += hours + ':';
+            }
+
+            totalTime += addPrefix(minutes) + ':' + addPrefix(seconds);
+
+            $('.total-time').html(totalTime);
+
+            //console.log(totalTime);
+            setTimeout(function () {
+                self.calculateTime();
+            },this.timeInterval);
+        }
+    },
+
+    init: function () {
+        var self = this;
+
+        $('#timer .left-button').click(function () {
+            self.leftButton();
+        });
+        $('#timer .right-button').click(function () {
+            self.rightButton()
+
+        });
+
     }
-});
 
-var timer = setInterval(function () {
-    //console.log('1s');
-}, 10000);
-
+};
 
 
 //--------------------Stopwatch----------------------------
